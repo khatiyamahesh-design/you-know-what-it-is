@@ -2,127 +2,135 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Happy New Year ✨</title>
+<title>New Year ✨</title>
+
+<script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
 
 <style>
 html,body{
   margin:0;
   height:100%;
-  background:#0b0b14;
-  font-family:Poppins,system-ui,sans-serif;
-  color:#fff;
+  background:#070710;
+  font-family:'Poppins',system-ui,sans-serif;
   overflow:hidden;
+  color:#fff;
+}
+
+#stage{
+  position:fixed;
+  inset:0;
 }
 
 .layer{
   position:absolute;
   inset:0;
-  display:none;
-  flex-direction:column;
+  display:flex;
   align-items:center;
   justify-content:center;
+  flex-direction:column;
+  opacity:0;
 }
 
-.layer.active{ display:flex; }
+.layer.active{ opacity:1; }
 
-button{
-  padding:14px 32px;
-  border-radius:30px;
-  border:none;
-  background:linear-gradient(135deg,#ffb703,#fb8500);
-  font-size:16px;
-  cursor:pointer;
-  margin-top:20px;
+h1{
+  font-size:44px;
+  margin:10px 0;
+  text-align:center;
+}
+
+p{
+  font-size:18px;
+  opacity:.85;
+  text-align:center;
+}
+
+.glow{
+  text-shadow:0 0 25px rgba(255,180,80,.8);
 }
 
 .light{
   position:absolute;
-  width:10px;
-  height:10px;
+  width:8px;
+  height:8px;
   border-radius:50%;
   background:gold;
-  animation:float 4s linear infinite;
 }
 
-@keyframes float{
-  from{transform:translateY(100vh)}
-  to{transform:translateY(-120px)}
-}
-
-.bubble{
+canvas{
   position:absolute;
-  width:70px;
-  height:70px;
-  border-radius:50%;
-  background:radial-gradient(circle,#fff,#7fd8ff);
-  cursor:pointer;
-  animation:float 5s linear;
+  inset:0;
 }
-
-.emoji{
-  font-size:40px;
-  position:absolute;
-  cursor:pointer;
-}
-
-canvas{ position:absolute; inset:0; }
 </style>
 </head>
 
 <body>
 
-<div class="layer active" id="l1">
-  <h2>Hey 👋</h2>
-  <button onclick="go(2)">Start</button>
-</div>
+<div id="stage">
 
-<div class="layer" id="l2">
-  <h1 id="name"></h1>
-  <button onclick="go(3)">Next</button>
-</div>
+  <div class="layer active" id="s1">
+    <p>I made something small…</p>
+  </div>
 
-<div class="layer" id="l3">
-  <p>Festival lights ✨</p>
-  <button onclick="go(4)">Continue</button>
-</div>
+  <div class="layer" id="s2">
+    <h1 class="glow" id="name"></h1>
+  </div>
 
-<div class="layer" id="l4">
-  <p>Pop 5 bubbles 🫧</p>
-</div>
+  <div class="layer" id="s3">
+    <p>Festival lights are waking up 🪔</p>
+  </div>
 
-<div class="layer" id="l5">
-  <p>Tap the emojis 🎉</p>
-</div>
+  <div class="layer" id="s4">
+    <p>Tap anywhere ✨</p>
+  </div>
 
-<div class="layer" id="l6">
-  <canvas id="fx"></canvas>
-  <p>Tap for fireworks 🎆</p>
-  <button onclick="go(7)">Finish</button>
-</div>
+  <div class="layer" id="s5">
+    <p>Wait for it…</p>
+  </div>
 
-<div class="layer" id="l7">
-  <h1>🎆 Happy New Year Rii 🎆</h1>
-  <p>
-    Wishing you lights,<br>
-    laughter,<br>
-    and a year that feels good 🪔
-  </p>
+  <div class="layer" id="s6">
+    <canvas id="fx"></canvas>
+    <h1 class="glow">🎆 HAPPY NEW YEAR 🎆</h1>
+    <h1 class="glow">Rii</h1>
+    <p>
+      May this year be bright,<br>
+      full of good moments,<br>
+      and festival energy all around 🪔
+    </p>
+  </div>
+
 </div>
 
 <script>
-function go(n){
-  document.querySelectorAll('.layer').forEach(l=>l.classList.remove('active'));
-  document.getElementById('l'+n).classList.add('active');
-  if(n===2) name();
-  if(n===3) lights();
-  if(n===4) bubbles();
-  if(n===5) emojis();
-  if(n===6) fireworks();
+let scene = 1;
+const total = 6;
+const stage = document.getElementById("stage");
+
+function show(n){
+  document.querySelectorAll(".layer").forEach(l=>l.classList.remove("active"));
+  document.getElementById("s"+n).classList.add("active");
 }
 
-function name(){
-  const text="Hey Rii 🌸";
-  let i=0,el=document.getElementById("name");
+gsap.from("#s1 p",{opacity:0,y:20,duration:1.2,ease:"power3.out"});
+
+stage.addEventListener("click",advance);
+
+function advance(){
+  if(scene>=total) return;
+  scene++;
+  show(scene);
+
+  if(scene===2) nameReveal();
+  if(scene===3) lights();
+  if(scene===4) tapBursts();
+  if(scene===5) gsap.from("#s5 p",{scale:.8,opacity:0,duration:1});
+  if(scene===6) festival();
+}
+
+function nameReveal(){
+  const text="Hey Rii ✨";
+  let i=0;
+  const el=document.getElementById("name");
   el.textContent="";
   const t=setInterval(()=>{
     el.textContent+=text[i++];
@@ -131,75 +139,68 @@ function name(){
 }
 
 function lights(){
-  for(let i=0;i<30;i++){
+  for(let i=0;i<40;i++){
     const d=document.createElement("div");
     d.className="light";
     d.style.left=Math.random()*100+"vw";
+    d.style.top=Math.random()*100+"vh";
     d.style.background=`hsl(${Math.random()*50+20},90%,60%)`;
-    document.getElementById("l3").appendChild(d);
+    stage.appendChild(d);
+    gsap.to(d,{
+      y:-120,
+      repeat:-1,
+      duration:Math.random()*4+3,
+      ease:"sine.inOut"
+    });
   }
 }
 
-let popped=0;
-function bubbles(){
-  popped=0;
-  const layer=document.getElementById("l4");
-  layer.innerHTML="<p>Pop 5 bubbles 🫧</p>";
-  for(let i=0;i<7;i++){
-    const b=document.createElement("div");
-    b.className="bubble";
-    b.style.left=Math.random()*80+"vw";
-    b.onclick=()=>{
-      b.remove();
-      popped++;
-      if(popped>=5) go(5);
-    };
-    layer.appendChild(b);
-  }
+function tapBursts(){
+  stage.onclick=e=>{
+    for(let i=0;i<20;i++){
+      const b=document.createElement("div");
+      b.className="light";
+      b.style.left=e.clientX+"px";
+      b.style.top=e.clientY+"px";
+      stage.appendChild(b);
+      gsap.to(b,{
+        x:(Math.random()-0.5)*200,
+        y:(Math.random()-0.5)*200,
+        opacity:0,
+        duration:1,
+        onComplete:()=>b.remove()
+      });
+    }
+  };
 }
 
-let taps=0;
-function emojis(){
-  taps=0;
-  const layer=document.getElementById("l5");
-  layer.innerHTML="<p>Tap the emojis 🎉</p>";
-  ["🎈","✨","🎊","💛"].forEach(e=>{
-    const s=document.createElement("div");
-    s.className="emoji";
-    s.textContent=e;
-    s.style.left=Math.random()*80+"vw";
-    s.style.top=Math.random()*70+"vh";
-    s.onclick=()=>{
-      s.remove();
-      taps++;
-      if(taps>=3) go(6);
-    };
-    layer.appendChild(s);
-  });
-}
-
-function fireworks(){
+function festival(){
+  stage.onclick=null;
   const c=document.getElementById("fx");
   const ctx=c.getContext("2d");
   c.width=innerWidth;
   c.height=innerHeight;
   const p=[];
-  c.onclick=e=>{
-    for(let i=0;i<30;i++){
+  function burst(x,y){
+    for(let i=0;i<40;i++){
       p.push({
-        x:e.clientX,y:e.clientY,
+        x,y,
         vx:(Math.random()-.5)*6,
         vy:(Math.random()-.5)*6,
-        life:60
+        life:70,
+        col:`hsl(${Math.random()*50+20},90%,60%)`
       });
     }
-  };
+  }
+  setInterval(()=>burst(Math.random()*c.width,Math.random()*c.height*.6),900);
+  c.onclick=e=>burst(e.clientX,e.clientY);
+
   function draw(){
-    ctx.fillStyle="rgba(10,5,20,.2)";
+    ctx.fillStyle="rgba(7,7,16,.25)";
     ctx.fillRect(0,0,c.width,c.height);
     p.forEach((o,i)=>{
       o.x+=o.vx;o.y+=o.vy;o.life--;
-      ctx.fillStyle="gold";
+      ctx.fillStyle=o.col;
       ctx.fillRect(o.x,o.y,3,3);
       if(o.life<=0)p.splice(i,1);
     });
