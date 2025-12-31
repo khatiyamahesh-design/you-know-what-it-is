@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>A Little Fun Thing 💫</title>
+
+<style>
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  height: 100%;
+  font-family: 'Poppins', system-ui, sans-serif;
+  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color: #fff;
+  overflow: hidden;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .6s ease, transform .6s ease;
+  transform: scale(.95);
+}
+
+.layer.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.tap {
+  animation: bounce 1.2s infinite;
+}
+
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+button {
+  margin-top: 20px;
+  padding: 14px 30px;
+  border-radius: 30px;
+  border: none;
+  background: linear-gradient(135deg,#ffdd00,#ff9f1c);
+  color: #000;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.moods span {
+  display: inline-block;
+  margin: 10px;
+  padding: 12px 18px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.15);
+  cursor: pointer;
+  transition: transform .2s;
+}
+.moods span:hover { transform: scale(1.15); }
+
+.bubble {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: radial-gradient(circle,#fff,#7fd8ff);
+  animation: floatUp 4s linear;
+}
+
+@keyframes floatUp {
+  from { transform: translateY(100vh); }
+  to { transform: translateY(-100px); }
+}
+
+.emoji {
+  font-size: 40px;
+  margin: 10px;
+  cursor: pointer;
+  transition: transform .2s;
+}
+.emoji:active { transform: scale(1.4) rotate(10deg); }
+
+.slider {
+  width: 80%;
+}
+input[type=range] {
+  width: 100%;
+}
+
+.count {
+  font-size: 60px;
+  animation: pop .4s ease;
+}
+@keyframes pop {
+  from { transform: scale(.2); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="layer active" id="l1">
+  <h2 class="tap">Tap to start ✨</h2>
+</div>
+
+<div class="layer" id="l2">
+  <h2 id="name"></h2>
+</div>
+
+<div class="layer" id="l3">
+  <p>Pick a vibe</p>
+  <div class="moods">
+    <span onclick="next()">😌 Chill</span>
+    <span onclick="next()">😄 Fun</span>
+    <span onclick="next()">✨ Curious</span>
+  </div>
+</div>
+
+<div class="layer" id="l4">
+  <p>Pop 5 bubbles 🫧</p>
+</div>
+
+<div class="layer" id="l5">
+  <p>Tap the emojis 😄</p>
+  <div>
+    <span class="emoji">🎈</span>
+    <span class="emoji">✨</span>
+    <span class="emoji">💗</span>
+    <span class="emoji">🌸</span>
+  </div>
+  <button onclick="next()">Continue</button>
+</div>
+
+<div class="layer" id="l6">
+  <p>Slide to unlock 🔓</p>
+  <div class="slider">
+    <input type="range" min="0" max="100" value="0" id="range">
+  </div>
+</div>
+
+<div class="layer" id="l7">
+  <div class="count" id="count">3</div>
+</div>
+
+<div class="layer" id="l8">
+  <h2>🎉 Happy New Year, Rii</h2>
+  <p>
+    Hope this year brings<br>
+    fun moments, soft smiles,<br>
+    and things that feel easy ✨
+  </p>
+</div>
+
+<script>
+let current = 1;
+document.body.addEventListener("click", () => {
+  if (current === 1) next();
+});
+
+function next() {
+  document.getElementById("l"+current).classList.remove("active");
+  current++;
+  document.getElementById("l"+current).classList.add("active");
+
+  if (current === 2) typeName();
+  if (current === 4) bubbles();
+  if (current === 6) slider();
+  if (current === 7) countdown();
+}
+
+function typeName() {
+  const text = "Hey Rii 💫";
+  let i = 0;
+  const el = document.getElementById("name");
+  const t = setInterval(() => {
+    el.textContent += text[i++];
+    if (i === text.length) {
+      clearInterval(t);
+      setTimeout(next, 700);
+    }
+  }, 120);
+}
+
+let popped = 0;
+function bubbles() {
+  popped = 0;
+  const layer = document.getElementById("l4");
+  const spawn = setInterval(() => {
+    const b = document.createElement("div");
+    b.className = "bubble";
+    b.style.left = Math.random()*90+"vw";
+    b.onclick = () => {
+      b.remove();
+      popped++;
+      if (popped >= 5) {
+        clearInterval(spawn);
+        next();
+      }
+    };
+    layer.appendChild(b);
+    setTimeout(()=>b.remove(),4000);
+  },600);
+}
+
+function slider() {
+  const r = document.getElementById("range");
+  r.oninput = () => {
+    if (r.value >= 100) next();
+  };
+}
+
+function countdown() {
+  let n = 3;
+  const el = document.getElementById("count");
+  const c = setInterval(() => {
+    n--;
+    el.textContent = n;
+    if (n === 0) {
+      clearInterval(c);
+      next();
+    }
+  },500);
+}
+</script>
+
+</body>
+</html>
