@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>New Year ✨</title>
+<title>Happy New Year ✨</title>
 
 <script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
 
@@ -16,12 +16,7 @@ html,body{
   color:#fff;
 }
 
-#stage{
-  position:fixed;
-  inset:0;
-}
-
-.layer{
+.scene{
   position:absolute;
   inset:0;
   display:flex;
@@ -29,13 +24,16 @@ html,body{
   justify-content:center;
   flex-direction:column;
   opacity:0;
+  pointer-events:none;
 }
 
-.layer.active{ opacity:1; }
+.scene.active{
+  opacity:1;
+}
 
 h1{
   font-size:44px;
-  margin:10px 0;
+  margin:8px 0;
   text-align:center;
 }
 
@@ -46,7 +44,7 @@ p{
 }
 
 .glow{
-  text-shadow:0 0 25px rgba(255,180,80,.8);
+  text-shadow:0 0 25px rgba(255,180,80,.9);
 }
 
 .light{
@@ -66,72 +64,81 @@ canvas{
 
 <body>
 
-<div id="stage">
+<!-- SCENES -->
+<div class="scene active" id="s1">
+  <p>I made something small…</p>
+</div>
 
-  <div class="layer active" id="s1">
-    <p>I made something small…</p>
-  </div>
+<div class="scene" id="s2">
+  <h1 class="glow" id="name"></h1>
+</div>
 
-  <div class="layer" id="s2">
-    <h1 class="glow" id="name"></h1>
-  </div>
+<div class="scene" id="s3">
+  <p>Festival lights are coming alive 🪔</p>
+</div>
 
-  <div class="layer" id="s3">
-    <p>Festival lights are waking up 🪔</p>
-  </div>
+<div class="scene" id="s4">
+  <p>Just enjoy ✨</p>
+</div>
 
-  <div class="layer" id="s4">
-    <p>Tap anywhere ✨</p>
-  </div>
+<div class="scene" id="s5">
+  <p>And here we go…</p>
+</div>
 
-  <div class="layer" id="s5">
-    <p>Wait for it…</p>
-  </div>
-
-  <div class="layer" id="s6">
-    <canvas id="fx"></canvas>
-    <h1 class="glow">🎆 HAPPY NEW YEAR 🎆</h1>
-    <h1 class="glow">Rii</h1>
-    <p>
-      May this year be bright,<br>
-      full of good moments,<br>
-      and festival energy all around 🪔
-    </p>
-  </div>
-
+<div class="scene" id="s6">
+  <canvas id="fx"></canvas>
+  <h1 class="glow">🎆 HAPPY NEW YEAR 🎆</h1>
+  <h1 class="glow">Rii</h1>
+  <p>
+    May this year be bright,<br>
+    full of good moments,<br>
+    and festival energy all around 🪔
+  </p>
 </div>
 
 <script>
-let scene = 1;
-const total = 6;
-const stage = document.getElementById("stage");
+const scenes = document.querySelectorAll(".scene");
+let index = 0;
 
-function show(n){
-  document.querySelectorAll(".layer").forEach(l=>l.classList.remove("active"));
-  document.getElementById("s"+n).classList.add("active");
+/* Helper */
+function show(i){
+  scenes.forEach(s=>s.classList.remove("active"));
+  scenes[i].classList.add("active");
 }
 
-gsap.from("#s1 p",{opacity:0,y:20,duration:1.2,ease:"power3.out"});
+/* TIMELINE FLOW */
+const tl = gsap.timeline();
 
-stage.addEventListener("click",advance);
+tl.to("#s1", {opacity:1, duration:1})
+  .to("#s1", {opacity:0, duration:.6, delay:1})
 
-function advance(){
-  if(scene>=total) return;
-  scene++;
-  show(scene);
+  .call(()=>show(1))
+  .call(nameReveal)
+  .to("#s2", {opacity:1, duration:1})
+  .to("#s2", {opacity:0, duration:.6, delay:1})
 
-  if(scene===2) nameReveal();
-  if(scene===3) lights();
-  if(scene===4) tapBursts();
-  if(scene===5) gsap.from("#s5 p",{scale:.8,opacity:0,duration:1});
-  if(scene===6) festival();
-}
+  .call(()=>show(2))
+  .call(lights)
+  .to("#s3", {opacity:1, duration:1})
+  .to("#s3", {opacity:0, duration:.6, delay:1.2})
+
+  .call(()=>show(3))
+  .to("#s4", {opacity:1, duration:1})
+  .to("#s4", {opacity:0, duration:.6, delay:1})
+
+  .call(()=>show(4))
+  .to("#s5", {opacity:1, duration:1})
+  .to("#s5", {opacity:0, duration:.6, delay:1})
+
+  .call(()=>show(5))
+  .call(festival)
+  .to("#s6", {opacity:1, duration:1.5});
 
 function nameReveal(){
   const text="Hey Rii ✨";
-  let i=0;
   const el=document.getElementById("name");
   el.textContent="";
+  let i=0;
   const t=setInterval(()=>{
     el.textContent+=text[i++];
     if(i===text.length) clearInterval(t);
@@ -139,13 +146,13 @@ function nameReveal(){
 }
 
 function lights(){
-  for(let i=0;i<40;i++){
+  for(let i=0;i<30;i++){
     const d=document.createElement("div");
     d.className="light";
     d.style.left=Math.random()*100+"vw";
     d.style.top=Math.random()*100+"vh";
     d.style.background=`hsl(${Math.random()*50+20},90%,60%)`;
-    stage.appendChild(d);
+    document.body.appendChild(d);
     gsap.to(d,{
       y:-120,
       repeat:-1,
@@ -155,43 +162,25 @@ function lights(){
   }
 }
 
-function tapBursts(){
-  stage.onclick=e=>{
-    for(let i=0;i<20;i++){
-      const b=document.createElement("div");
-      b.className="light";
-      b.style.left=e.clientX+"px";
-      b.style.top=e.clientY+"px";
-      stage.appendChild(b);
-      gsap.to(b,{
-        x:(Math.random()-0.5)*200,
-        y:(Math.random()-0.5)*200,
-        opacity:0,
-        duration:1,
-        onComplete:()=>b.remove()
-      });
-    }
-  };
-}
-
 function festival(){
-  stage.onclick=null;
   const c=document.getElementById("fx");
   const ctx=c.getContext("2d");
   c.width=innerWidth;
   c.height=innerHeight;
   const p=[];
+
   function burst(x,y){
     for(let i=0;i<40;i++){
       p.push({
         x,y,
         vx:(Math.random()-.5)*6,
         vy:(Math.random()-.5)*6,
-        life:70,
+        life:80,
         col:`hsl(${Math.random()*50+20},90%,60%)`
       });
     }
   }
+
   setInterval(()=>burst(Math.random()*c.width,Math.random()*c.height*.6),900);
   c.onclick=e=>burst(e.clientX,e.clientY);
 
