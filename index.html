@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>A Small Thing for You</title>
+<meta charset="UTF-8" />
+<title>New Year ✨</title>
+
+<!-- GSAP -->
+<script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
 
 <style>
 html,body{
   margin:0;
   height:100%;
-  background:#0b0f1a;
+  background:#0b0b14;
+  font-family:'Poppins',system-ui,sans-serif;
   color:#fff;
-  font-family:'Poppins',system-ui;
   overflow:hidden;
 }
 
@@ -18,12 +21,11 @@ html,body{
   position:absolute;
   inset:0;
   display:flex;
+  flex-direction:column;
   align-items:center;
   justify-content:center;
-  flex-direction:column;
   opacity:0;
   pointer-events:none;
-  transition:opacity .6s ease;
 }
 
 .layer.active{
@@ -31,36 +33,48 @@ html,body{
   pointer-events:auto;
 }
 
+h1,h2,p{margin:10px 0;text-align:center;}
+
+.tap{
+  opacity:.8;
+  animation:pulse 1.2s infinite;
+}
+
+@keyframes pulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.1)}
+}
+
 button{
-  padding:14px 30px;
+  padding:14px 32px;
   border-radius:30px;
   border:none;
-  background:linear-gradient(135deg,#ffb347,#ffcc33);
-  color:#000;
+  background:linear-gradient(135deg,#ffb703,#fb8500);
   font-size:16px;
   cursor:pointer;
 }
 
-.word{
+.light{
   position:absolute;
-  padding:10px 16px;
-  border-radius:20px;
-  background:rgba(255,255,255,.15);
-  cursor:pointer;
-  animation:float 3s ease-in-out infinite;
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:gold;
 }
 
-@keyframes float{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-20px)}
+#festivalText{
+  position:absolute;
+  z-index:5;
+  text-align:center;
 }
 
-#wishBox{
-  min-height:60px;
-  margin-top:20px;
-  border:2px dashed rgba(255,255,255,.4);
-  padding:10px 20px;
-  border-radius:20px;
+#festivalText h1{
+  font-size:42px;
+}
+
+#festivalText p{
+  font-size:18px;
+  opacity:.9;
 }
 
 canvas{
@@ -74,116 +88,139 @@ canvas{
 
 <!-- LAYERS -->
 <div class="layer active" id="l1">
-  <p>I made something… not serious 🙂</p>
-  <button onclick="next()">Start</button>
+  <h2 class="tap">Tap to start ✨</h2>
 </div>
 
 <div class="layer" id="l2">
-  <h2 id="name"></h2>
+  <h1 id="name"></h1>
 </div>
 
 <div class="layer" id="l3">
-  <p>Tap to change the vibe 🎨</p>
-  <button onclick="changeBg()">Change</button>
-  <button onclick="next()">Good</button>
+  <p>Festival lights are coming on 🪔</p>
 </div>
 
-<div class="layer" id="l4">
-  <p>Collect the words ✨</p>
-</div>
+<div class="layer" id="l4"></div>
 
 <div class="layer" id="l5">
-  <p>Put them together</p>
-  <div id="wishBox"></div>
-  <button onclick="next()">Ready</button>
+  <p>Tap the sparkles ✨</p>
 </div>
 
 <div class="layer" id="l6">
-  <p>One last thing…</p>
-  <button onclick="next()">Okay</button>
+  <h2>Ready?</h2>
 </div>
 
 <div class="layer" id="l7">
   <canvas id="fx"></canvas>
-</div>
-
-<div class="layer" id="l8">
-  <h2>🎆 Happy New Year, Rii</h2>
-  <p>(tap around ✨)</p>
+  <div id="festivalText">
+    <h1>🎆 HAPPY NEW YEAR 🎆</h1>
+    <h2>Rii ✨</h2>
+    <p>May this year be bright, fun,<br>and full of good moments 🪔</p>
+  </div>
 </div>
 
 <script>
-let current=1;
+let current = 1;
+const layers = n => document.getElementById("l"+n);
+
+document.body.addEventListener("click",()=>{
+  if(current===1) next();
+});
+
 function next(){
-  document.getElementById("l"+current).classList.remove("active");
+  gsap.to(layers(current),{opacity:0,duration:.4});
   current++;
-  document.getElementById("l"+current).classList.add("active");
-  if(current===2) typeName();
-  if(current===4) spawnWords();
-  if(current===7) fireworks();
+  layers(current).classList.add("active");
+  gsap.fromTo(layers(current),
+    {opacity:0,scale:.9},
+    {opacity:1,scale:1,duration:.6,ease:"power3.out"}
+  );
+
+  if(current===2) nameReveal();
+  if(current===4) floatingLights();
+  if(current===5) sparkleGame();
+  if(current===7) festival();
 }
 
-function typeName(){
-  const t="Hey Rii 🌸";
-  let i=0,el=document.getElementById("name");
-  const id=setInterval(()=>{
-    el.textContent+=t[i++];
-    if(i===t.length){clearInterval(id);setTimeout(next,600);}
+function nameReveal(){
+  const text="Hey Rii 🌸";
+  let i=0;
+  const el=document.getElementById("name");
+  const t=setInterval(()=>{
+    el.textContent+=text[i++];
+    if(i===text.length){
+      clearInterval(t);
+      setTimeout(next,700);
+    }
   },120);
 }
 
-function changeBg(){
-  document.body.style.background=
-    `hsl(${Math.random()*360},40%,15%)`;
-}
-
-const words=["calm","fun","smiles","warmth","good vibes","new starts"];
-let collected=0;
-function spawnWords(){
-  const layer=document.getElementById("l4");
-  words.forEach(w=>{
+function floatingLights(){
+  for(let i=0;i<30;i++){
     const d=document.createElement("div");
-    d.className="word";
-    d.textContent=w;
-    d.style.left=Math.random()*80+"vw";
-    d.style.top=Math.random()*60+"vh";
-    d.onclick=()=>{
-      document.getElementById("wishBox").innerHTML+=w+" ";
-      d.remove();
-      collected++;
-      if(collected===words.length) setTimeout(next,500);
-    };
-    layer.appendChild(d);
-  });
+    d.className="light";
+    d.style.left=Math.random()*100+"vw";
+    d.style.top=Math.random()*100+"vh";
+    d.style.background=`hsl(${Math.random()*50+20},90%,60%)`;
+    document.getElementById("l4").appendChild(d);
+    gsap.to(d,{
+      y:-100,
+      repeat:-1,
+      duration:Math.random()*3+3,
+      ease:"sine.inOut"
+    });
+  }
+  setTimeout(next,2000);
 }
 
-function fireworks(){
+let hits=0;
+function sparkleGame(){
+  for(let i=0;i<12;i++){
+    const s=document.createElement("div");
+    s.className="light";
+    s.style.left=Math.random()*90+"vw";
+    s.style.top=Math.random()*80+"vh";
+    document.getElementById("l5").appendChild(s);
+    gsap.to(s,{scale:1.6,repeat:-1,yoyo:true,duration:.6});
+    s.onclick=()=>{
+      s.remove();
+      hits++;
+      if(hits>=6) setTimeout(next,500);
+    };
+  }
+}
+
+function festival(){
   const c=document.getElementById("fx");
   const ctx=c.getContext("2d");
-  c.width=innerWidth;c.height=innerHeight;
-  const sparks=[];
-  document.onclick=e=>{
-    for(let i=0;i<30;i++){
-      sparks.push({
-        x:e.clientX,y:e.clientY,
+  c.width=innerWidth;
+  c.height=innerHeight;
+  const p=[];
+  function burst(x,y){
+    for(let i=0;i<40;i++){
+      p.push({
+        x,y,
         vx:(Math.random()-.5)*6,
         vy:(Math.random()-.5)*6,
-        life:60
+        life:60,
+        col:`hsl(${Math.random()*50+20},90%,60%)`
       });
     }
-  };
+  }
+  setInterval(()=>burst(Math.random()*c.width,Math.random()*c.height*.6),800);
+  c.onclick=e=>burst(e.clientX,e.clientY);
+
   function draw(){
-    ctx.clearRect(0,0,c.width,c.height);
-    sparks.forEach((s,i)=>{
-      s.x+=s.vx; s.y+=s.vy; s.life--;
-      ctx.fillStyle="hsl("+Math.random()*360+",80%,60%)";
-      ctx.fillRect(s.x,s.y,3,3);
-      if(s.life<=0) sparks.splice(i,1);
+    ctx.fillStyle="rgba(10,5,20,.2)";
+    ctx.fillRect(0,0,c.width,c.height);
+    p.forEach((o,i)=>{
+      o.x+=o.vx;o.y+=o.vy;o.life--;
+      ctx.fillStyle=o.col;
+      ctx.fillRect(o.x,o.y,3,3);
+      if(o.life<=0)p.splice(i,1);
     });
     requestAnimationFrame(draw);
   }
   draw();
-  setTimeout(()=>next(),1500);
 }
 </script>
 
