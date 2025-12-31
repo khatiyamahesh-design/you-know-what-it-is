@@ -27,9 +27,7 @@ html,body{
   opacity:0;
 }
 
-.scene.active{
-  opacity:1;
-}
+.scene.active{ opacity:1; }
 
 /* TEXT */
 h1{
@@ -45,7 +43,13 @@ p{
 }
 
 .glow{
-  text-shadow:0 0 25px rgba(255,180,80,.9);
+  text-shadow:0 0 30px rgba(255,180,80,.95);
+}
+
+/* COUNTDOWN */
+#countdown{
+  font-size:96px;
+  font-weight:700;
 }
 
 /* LIGHTS */
@@ -98,8 +102,11 @@ canvas{
 </div>
 
 <div class="scene" id="s6">
-  <canvas id="fx"></canvas>
+  <div id="countdown" class="glow">3</div>
+</div>
 
+<div class="scene" id="s7">
+  <canvas id="fx"></canvas>
   <div id="finalText">
     <h1 class="glow">🎆 HAPPY NEW YEAR 🎆</h1>
     <h1 class="glow">Rii</h1>
@@ -114,13 +121,12 @@ canvas{
 <script>
 const scenes = document.querySelectorAll(".scene");
 
-/* SHOW SCENE */
 function show(i){
   scenes.forEach(s=>s.classList.remove("active"));
   scenes[i].classList.add("active");
 }
 
-/* AUTO CINEMATIC FLOW */
+/* CINEMATIC FLOW */
 const tl = gsap.timeline();
 
 tl.to("#s1",{opacity:1,duration:1})
@@ -145,8 +151,12 @@ tl.to("#s1",{opacity:1,duration:1})
   .to("#s5",{opacity:0,duration:.6,delay:1})
 
   .call(()=>show(5))
+  .call(startCountdown)
+  .to("#s6",{opacity:1,duration:.4})
+
+  .call(()=>show(6))
   .call(festival)
-  .to("#s6",{opacity:1,duration:1.5});
+  .to("#s7",{opacity:1,duration:1.5});
 
 /* NAME ANIMATION */
 function nameReveal(){
@@ -178,7 +188,24 @@ function festivalLights(){
   }
 }
 
-/* FIREWORKS (AROUND TEXT, NOT OVER IT) */
+/* COUNTDOWN */
+function startCountdown(){
+  const el=document.getElementById("countdown");
+  let num=3;
+
+  const interval=setInterval(()=>{
+    num--;
+    if(num===0){
+      clearInterval(interval);
+      gsap.to("#s6",{opacity:0,duration:.4});
+    } else {
+      el.textContent=num;
+      gsap.fromTo(el,{scale:0.6},{scale:1,duration:0.5,ease:"back.out"});
+    }
+  },800);
+}
+
+/* FIREWORKS */
 function festival(){
   const c=document.getElementById("fx");
   const ctx=c.getContext("2d");
