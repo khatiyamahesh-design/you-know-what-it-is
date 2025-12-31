@@ -2,113 +2,80 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>A Little Fun Thing 💫</title>
+<title>A Small Thing for You</title>
 
 <style>
-* { box-sizing: border-box; }
-html, body {
-  margin: 0;
-  height: 100%;
-  font-family: 'Poppins', system-ui, sans-serif;
-  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-  color: #fff;
-  overflow: hidden;
+html,body{
+  margin:0;
+  height:100%;
+  background:#0b0f1a;
+  color:#fff;
+  font-family:'Poppins',system-ui;
+  overflow:hidden;
 }
 
-.layer {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .6s ease, transform .6s ease;
-  transform: scale(.95);
+.layer{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .6s ease;
 }
 
-.layer.active {
-  opacity: 1;
-  pointer-events: auto;
-  transform: scale(1);
+.layer.active{
+  opacity:1;
+  pointer-events:auto;
 }
 
-.tap {
-  animation: bounce 1.2s infinite;
+button{
+  padding:14px 30px;
+  border-radius:30px;
+  border:none;
+  background:linear-gradient(135deg,#ffb347,#ffcc33);
+  color:#000;
+  font-size:16px;
+  cursor:pointer;
 }
 
-@keyframes bounce {
-  0%,100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+.word{
+  position:absolute;
+  padding:10px 16px;
+  border-radius:20px;
+  background:rgba(255,255,255,.15);
+  cursor:pointer;
+  animation:float 3s ease-in-out infinite;
 }
 
-button {
-  margin-top: 20px;
-  padding: 14px 30px;
-  border-radius: 30px;
-  border: none;
-  background: linear-gradient(135deg,#ffdd00,#ff9f1c);
-  color: #000;
-  font-size: 16px;
-  cursor: pointer;
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-20px)}
 }
 
-.moods span {
-  display: inline-block;
-  margin: 10px;
-  padding: 12px 18px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.15);
-  cursor: pointer;
-  transition: transform .2s;
-}
-.moods span:hover { transform: scale(1.15); }
-
-.bubble {
-  position: absolute;
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background: radial-gradient(circle,#fff,#7fd8ff);
-  animation: floatUp 4s linear;
+#wishBox{
+  min-height:60px;
+  margin-top:20px;
+  border:2px dashed rgba(255,255,255,.4);
+  padding:10px 20px;
+  border-radius:20px;
 }
 
-@keyframes floatUp {
-  from { transform: translateY(100vh); }
-  to { transform: translateY(-100px); }
-}
-
-.emoji {
-  font-size: 40px;
-  margin: 10px;
-  cursor: pointer;
-  transition: transform .2s;
-}
-.emoji:active { transform: scale(1.4) rotate(10deg); }
-
-.slider {
-  width: 80%;
-}
-input[type=range] {
-  width: 100%;
-}
-
-.count {
-  font-size: 60px;
-  animation: pop .4s ease;
-}
-@keyframes pop {
-  from { transform: scale(.2); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+canvas{
+  position:absolute;
+  inset:0;
 }
 </style>
 </head>
 
 <body>
 
+<!-- LAYERS -->
 <div class="layer active" id="l1">
-  <h2 class="tap">Tap to start ✨</h2>
+  <p>I made something… not serious 🙂</p>
+  <button onclick="next()">Start</button>
 </div>
 
 <div class="layer" id="l2">
@@ -116,118 +83,107 @@ input[type=range] {
 </div>
 
 <div class="layer" id="l3">
-  <p>Pick a vibe</p>
-  <div class="moods">
-    <span onclick="next()">😌 Chill</span>
-    <span onclick="next()">😄 Fun</span>
-    <span onclick="next()">✨ Curious</span>
-  </div>
+  <p>Tap to change the vibe 🎨</p>
+  <button onclick="changeBg()">Change</button>
+  <button onclick="next()">Good</button>
 </div>
 
 <div class="layer" id="l4">
-  <p>Pop 5 bubbles 🫧</p>
+  <p>Collect the words ✨</p>
 </div>
 
 <div class="layer" id="l5">
-  <p>Tap the emojis 😄</p>
-  <div>
-    <span class="emoji">🎈</span>
-    <span class="emoji">✨</span>
-    <span class="emoji">💗</span>
-    <span class="emoji">🌸</span>
-  </div>
-  <button onclick="next()">Continue</button>
+  <p>Put them together</p>
+  <div id="wishBox"></div>
+  <button onclick="next()">Ready</button>
 </div>
 
 <div class="layer" id="l6">
-  <p>Slide to unlock 🔓</p>
-  <div class="slider">
-    <input type="range" min="0" max="100" value="0" id="range">
-  </div>
+  <p>One last thing…</p>
+  <button onclick="next()">Okay</button>
 </div>
 
 <div class="layer" id="l7">
-  <div class="count" id="count">3</div>
+  <canvas id="fx"></canvas>
 </div>
 
 <div class="layer" id="l8">
-  <h2>🎉 Happy New Year, Rii</h2>
-  <p>
-    Hope this year brings<br>
-    fun moments, soft smiles,<br>
-    and things that feel easy ✨
-  </p>
+  <h2>🎆 Happy New Year, Rii</h2>
+  <p>(tap around ✨)</p>
 </div>
 
 <script>
-let current = 1;
-document.body.addEventListener("click", () => {
-  if (current === 1) next();
-});
-
-function next() {
+let current=1;
+function next(){
   document.getElementById("l"+current).classList.remove("active");
   current++;
   document.getElementById("l"+current).classList.add("active");
-
-  if (current === 2) typeName();
-  if (current === 4) bubbles();
-  if (current === 6) slider();
-  if (current === 7) countdown();
+  if(current===2) typeName();
+  if(current===4) spawnWords();
+  if(current===7) fireworks();
 }
 
-function typeName() {
-  const text = "Hey Rii 💫";
-  let i = 0;
-  const el = document.getElementById("name");
-  const t = setInterval(() => {
-    el.textContent += text[i++];
-    if (i === text.length) {
-      clearInterval(t);
-      setTimeout(next, 700);
-    }
-  }, 120);
+function typeName(){
+  const t="Hey Rii 🌸";
+  let i=0,el=document.getElementById("name");
+  const id=setInterval(()=>{
+    el.textContent+=t[i++];
+    if(i===t.length){clearInterval(id);setTimeout(next,600);}
+  },120);
 }
 
-let popped = 0;
-function bubbles() {
-  popped = 0;
-  const layer = document.getElementById("l4");
-  const spawn = setInterval(() => {
-    const b = document.createElement("div");
-    b.className = "bubble";
-    b.style.left = Math.random()*90+"vw";
-    b.onclick = () => {
-      b.remove();
-      popped++;
-      if (popped >= 5) {
-        clearInterval(spawn);
-        next();
-      }
+function changeBg(){
+  document.body.style.background=
+    `hsl(${Math.random()*360},40%,15%)`;
+}
+
+const words=["calm","fun","smiles","warmth","good vibes","new starts"];
+let collected=0;
+function spawnWords(){
+  const layer=document.getElementById("l4");
+  words.forEach(w=>{
+    const d=document.createElement("div");
+    d.className="word";
+    d.textContent=w;
+    d.style.left=Math.random()*80+"vw";
+    d.style.top=Math.random()*60+"vh";
+    d.onclick=()=>{
+      document.getElementById("wishBox").innerHTML+=w+" ";
+      d.remove();
+      collected++;
+      if(collected===words.length) setTimeout(next,500);
     };
-    layer.appendChild(b);
-    setTimeout(()=>b.remove(),4000);
-  },600);
+    layer.appendChild(d);
+  });
 }
 
-function slider() {
-  const r = document.getElementById("range");
-  r.oninput = () => {
-    if (r.value >= 100) next();
-  };
-}
-
-function countdown() {
-  let n = 3;
-  const el = document.getElementById("count");
-  const c = setInterval(() => {
-    n--;
-    el.textContent = n;
-    if (n === 0) {
-      clearInterval(c);
-      next();
+function fireworks(){
+  const c=document.getElementById("fx");
+  const ctx=c.getContext("2d");
+  c.width=innerWidth;c.height=innerHeight;
+  const sparks=[];
+  document.onclick=e=>{
+    for(let i=0;i<30;i++){
+      sparks.push({
+        x:e.clientX,y:e.clientY,
+        vx:(Math.random()-.5)*6,
+        vy:(Math.random()-.5)*6,
+        life:60
+      });
     }
-  },500);
+  };
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    sparks.forEach((s,i)=>{
+      s.x+=s.vx; s.y+=s.vy; s.life--;
+      ctx.fillStyle="hsl("+Math.random()*360+",80%,60%)";
+      ctx.fillRect(s.x,s.y,3,3);
+      if(s.life<=0) sparks.splice(i,1);
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+  setTimeout(()=>next(),1500);
 }
 </script>
 
